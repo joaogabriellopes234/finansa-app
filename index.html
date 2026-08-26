@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Finansa - Dashboard de Investimentos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-slate-900 text-slate-100 flex h-screen overflow-hidden selection:bg-emerald-500 selection:text-white">
+    
+    <!-- Sidebar -->
+    <aside class="w-72 bg-slate-800/50 border-r border-slate-700/50 flex flex-col h-full shrink-0">
+      
+      <!-- Logo -->
+      <div class="h-16 flex items-center px-6 border-b border-slate-700/50 shrink-0">
+        <svg class="w-6 h-6 text-emerald-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
+        <span class="text-lg font-bold tracking-wide">FINANSA</span>
+      </div>
+
+      <!-- Search -->
+      <div class="px-4 py-4 shrink-0 relative">
+        <div class="relative">
+          <svg class="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+          <input id="stock-search-input" type="text" placeholder="Buscar ações (ex: PETR4)..." autocomplete="off" class="w-full bg-slate-900/50 border border-slate-700 rounded-lg py-2 pl-9 pr-3 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all placeholder:text-slate-500 text-slate-200">
+        </div>
+        <!-- Dropdown de Sugestões -->
+        <div id="search-suggestions" class="absolute left-4 right-4 mt-1 bg-slate-800 border border-slate-700 rounded-lg shadow-2xl hidden flex-col overflow-hidden max-h-60 z-50 divide-y divide-slate-700/50">
+          <!-- Dynamic suggestions will be injected here -->
+        </div>
+      </div>
+
+      <!-- Favorite Stocks List -->
+      <div class="flex-1 overflow-y-auto px-2">
+        <div class="px-2 mb-2 flex justify-between items-center">
+          <h2 class="text-sm font-semibold text-slate-300">Minhas Ações</h2>
+        </div>
+        <p class="px-2 text-xs text-slate-500 mb-3">Ações favoritas</p>
+        
+        <div id="stocks-list" class="flex flex-col gap-1">
+          <!-- Dynamic stocks will be injected here -->
+        </div>
+
+        <div class="px-2 mt-3 mb-4">
+          <button id="add-new-stock-btn" class="w-full bg-slate-800/40 hover:bg-slate-700/60 border border-dashed border-slate-600 hover:border-slate-500 text-slate-300 text-sm font-medium py-2 rounded-lg transition-colors flex items-center justify-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+            Adicionar Nova Ação
+          </button>
+        </div>
+
+        <!-- Plan Usage Widget -->
+        <div id="plan-usage-widget" class="mt-2 p-3 bg-slate-900/80 border border-slate-750 rounded-xl relative overflow-hidden group mx-1">
+          <div class="flex items-center justify-between mb-2">
+            <span id="plan-badge-text" class="text-[10px] font-extrabold uppercase tracking-wider text-emerald-400">Plano Gratuito</span>
+            <button id="upgrade-trigger-btn" class="text-[10px] font-bold text-amber-300 hover:text-amber-200 transition-colors bg-amber-500/15 border border-amber-500/30 px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+              <span>Seja PRO</span>
+              <svg class="w-2.5 h-2.5" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
+            </button>
+          </div>
+          <div class="space-y-1.5">
+            <div class="flex justify-between text-[11px] text-slate-400">
+              <span>Cotas usadas:</span>
+              <span id="stocks-limit-count" class="font-semibold text-slate-200">0/5</span>
+            </div>
+            <div class="w-full bg-slate-950 h-1.5 rounded-full overflow-hidden border border-slate-800">
+              <div id="stocks-limit-bar" class="bg-emerald-500 h-full w-0 transition-all duration-500"></div>
+            </div>
+            <div class="flex items-center justify-between text-[10px] text-slate-500 pt-0.5" id="quota-timer-container">
+              <span class="flex items-center gap-1">
+                <svg class="w-3 h-3 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                <span>Renovação:</span>
+              </span>
+              <span id="quota-reset-timer" class="font-medium text-amber-400/90">Em 48h</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+
+
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col h-full bg-slate-900">
+      
+      <!-- Header -->
+      <header class="h-16 px-8 flex items-center justify-between border-b border-slate-800/50 shrink-0">
+        <div class="flex items-center gap-2">
+          <span id="market-status-dot" class="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]"></span>
+          <span id="market-status-text" class="text-sm font-medium text-slate-300">Mercado da B3 Aberto, <span id="current-time">09:45</span></span>
+        </div>
+
+        <!-- User Profile / Auth Container -->
+        <div id="user-profile-container" class="flex items-center gap-4">
+          <button id="settings-trigger-btn" class="text-slate-400 hover:text-slate-200 p-2 rounded-lg hover:bg-slate-800/50 transition-colors" title="Configurações">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+          </button>
+          
+          <div id="user-profile-badge" class="hidden flex items-center gap-3">
+            <div class="text-right">
+              <p id="user-email-text" class="text-sm font-medium text-slate-200">investidor@email.com</p>
+              <p id="user-tier-text" class="text-[10px] text-emerald-450 font-semibold tracking-wider uppercase">Plano Real</p>
+            </div>
+            <button id="logout-btn" class="bg-slate-800/80 hover:bg-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-700 transition-colors">
+              Sair
+            </button>
+          </div>
+
+          <button id="login-trigger-btn" class="bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm transition-all shadow-md shadow-emerald-500/10">
+            Entrar
+          </button>
+        </div>
+      </header>
+
+      <!-- Dashboard Scrollable Area -->
+      <div class="flex-1 overflow-y-auto p-8">
+        
+        <!-- Dashboard Content Container -->
+        <div class="max-w-5xl mx-auto space-y-8" id="dashboard-content">
+          <!-- The content will be dynamically injected here by main.js -->
+        </div>
+
+      </div>
+    </main>
+
+
+
+    <!-- Auth Modal (Hidden by default) -->
+    <div id="auth-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 hidden transition-all duration-300 opacity-0">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-8 shadow-2xl relative transform scale-95 transition-all duration-300">
+        <button id="close-auth-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="text-center mb-6">
+          <div class="w-12 h-12 bg-emerald-500/10 border border-emerald-500/30 rounded-xl flex items-center justify-center mx-auto mb-3 shadow-[0_0_15px_rgba(16,185,129,0.1)]">
+            <svg class="w-6 h-6 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+          </div>
+          <h3 id="auth-modal-title" class="text-xl font-bold text-slate-100">Entrar no Finansa</h3>
+          <p id="auth-modal-subtitle" class="text-xs text-slate-400 mt-1">Acesse sua carteira de análises</p>
+        </div>
+        <form id="auth-form" class="space-y-4">
+          <div>
+            <label for="auth-email" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">E-mail</label>
+            <input type="email" id="auth-email" required placeholder="seu@email.com" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-200 placeholder:text-slate-650">
+          </div>
+          <div id="auth-password-group">
+            <div class="flex justify-between items-center mb-1.5">
+              <label for="auth-password" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Senha</label>
+              <button type="button" id="auth-forgot-password-btn" class="text-[10px] text-emerald-400 font-semibold hover:underline">Esqueceu a senha?</button>
+            </div>
+            <input type="password" id="auth-password" required placeholder="••••••••" class="w-full bg-slate-950 border border-slate-700/80 rounded-lg py-2.5 px-3.5 text-sm focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all text-slate-200 placeholder:text-slate-650">
+          </div>
+          <button type="submit" id="auth-submit-btn" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition-all shadow-lg hover:shadow-emerald-500/10 mt-2 flex items-center justify-center gap-2">
+            <span>Entrar</span>
+            <svg id="auth-loading-spinner" class="w-4 h-4 animate-spin hidden" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+          </button>
+        </form>
+        <div id="auth-message-box" class="hidden mt-4 p-3 rounded-lg border text-xs text-center"></div>
+        <div class="text-center mt-6 pt-6 border-t border-slate-800/80">
+          <p class="text-xs text-slate-400">
+            <span id="auth-toggle-text">Não tem uma conta?</span>
+            <button id="auth-toggle-btn" class="text-emerald-400 font-semibold hover:underline ml-1">Criar Conta</button>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings Modal (Hidden by default) -->
+    <div id="settings-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md flex items-center justify-center z-50 hidden transition-all duration-300 opacity-0">
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-8 shadow-2xl relative transform scale-95 transition-all duration-300">
+        <button id="close-settings-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="text-center mb-6">
+          <h3 class="text-xl font-bold text-slate-100">Configurações Gerais</h3>
+          <p class="text-xs text-slate-400 mt-1">Configure suas chaves de API com segurança local.</p>
+        </div>
+        <form id="settings-form" class="space-y-4">
+          <div>
+            <label for="settings-openrouter-key" class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Chave API do OpenRouter (openrouter.ai)</label>
+            <input type="password" id="settings-openrouter-key" placeholder="sk-or-v1-..." class="w-full bg-slate-950 border border-slate-700/80 rounded-lg py-2 px-3 text-sm focus:outline-none focus:border-emerald-500 transition-all text-slate-200 placeholder:text-slate-650">
+            <p class="text-[9px] text-slate-500 mt-1">Sua chave é salva apenas no seu navegador para gerar resumos de IA com Llama 3.3, DeepSeek e Gemini.</p>
+          </div>
+          <button type="submit" class="w-full bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-bold py-2.5 rounded-lg text-sm transition-all shadow-lg hover:shadow-emerald-500/10 mt-2">
+            Salvar Configurações
+          </button>
+        </form>
+        <div id="settings-message-box" class="hidden mt-4 p-3 rounded-lg border text-xs text-center"></div>
+      </div>
+    </div>
+
+    <!-- Upgrade Modal (Planos Starter R$ 29/mês & Pro R$ 129/mês do Stripe) -->
+    <div id="upgrade-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-md flex items-center justify-center z-50 hidden transition-all duration-300 opacity-0">
+      <div class="bg-slate-900 border border-slate-750 rounded-2xl w-full max-w-lg p-8 shadow-[0_0_50px_rgba(16,185,129,0.1)] relative transform scale-95 transition-all duration-300 overflow-hidden max-h-[90vh] overflow-y-auto">
+        <button id="close-upgrade-modal" class="absolute top-4 right-4 text-slate-400 hover:text-slate-200 transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+        </button>
+        <div class="text-center mb-6 relative z-10">
+          <h3 class="text-2xl font-black text-slate-100 tracking-tight">Escolha seu Plano Finansa ⚡</h3>
+          <p id="upgrade-modal-reason" class="text-xs text-emerald-400 font-medium mt-1">Selecione o plano ideal para suas análises na B3.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-2 relative z-10">
+          <!-- Card Plano Starter (R$ 29/mês) -->
+          <div class="bg-slate-950/80 border border-slate-800 hover:border-emerald-500/50 rounded-xl p-5 flex flex-col justify-between transition-all group">
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-emerald-400">Starter 🚀</span>
+                <span class="text-[9px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded-full font-semibold">Popular</span>
+              </div>
+              <div class="text-2xl font-black text-slate-100 mb-3">R$ 29<span class="text-xs font-medium text-slate-400">/mês</span></div>
+              <ul class="space-y-2 text-[11px] text-slate-300 mb-4">
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400 font-bold">✓</span> Até 15 ações na carteira</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400 font-bold">✓</span> 20 Resumos de IA / dia</li>
+                <li class="flex items-center gap-1.5"><span class="text-emerald-400 font-bold">✓</span> Dados B3 em tempo real</li>
+              </ul>
+            </div>
+            <button id="activate-starter-btn" class="w-full bg-slate-800 hover:bg-emerald-600 hover:text-slate-950 text-emerald-400 font-bold py-2.5 rounded-lg text-xs transition-all border border-emerald-500/30 flex items-center justify-center gap-1">
+              <span>Assinar Starter (R$ 29)</span>
+            </button>
+          </div>
+
+          <!-- Card Plano Pro (R$ 129/mês) -->
+          <div class="bg-slate-950/90 border border-amber-500/40 rounded-xl p-5 flex flex-col justify-between transition-all shadow-[0_0_25px_rgba(245,158,11,0.1)] relative overflow-hidden group">
+            <div class="absolute top-0 right-0 bg-gradient-to-l from-amber-400 to-amber-500 text-slate-950 text-[9px] font-black uppercase px-3 py-0.5 rounded-bl-lg">Ilimitado</div>
+            <div>
+              <div class="flex justify-between items-center mb-2">
+                <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Pro ⚡</span>
+              </div>
+              <div class="text-2xl font-black text-slate-100 mb-3">R$ 129<span class="text-xs font-medium text-slate-400">/mês</span></div>
+              <ul class="space-y-2 text-[11px] text-slate-300 mb-4">
+                <li class="flex items-center gap-1.5"><span class="text-amber-400 font-bold">✓</span> Ações <strong>Ilimitadas</strong></li>
+                <li class="flex items-center gap-1.5"><span class="text-amber-400 font-bold">✓</span> Análises de IA <strong>Ilimitadas</strong></li>
+                <li class="flex items-center gap-1.5"><span class="text-amber-400 font-bold">✓</span> Selo PRO exclusivo & Prioridade</li>
+              </ul>
+            </div>
+            <button id="activate-pro-btn" class="w-full bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black py-2.5 rounded-lg text-xs transition-all shadow-md flex items-center justify-center gap-1">
+              <span>Assinar Pro (R$ 129)</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
